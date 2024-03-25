@@ -24,6 +24,16 @@ To compile `beagle-lib`:
 
 zypper in cmake
 zypper in java-21-openjdk-devel
-zypper in intel-opencl intel-opencl-devel
+zypper in intel-opencl intel-opencl-devel opencl-cpp-headers
+
+git clone --depth=1 https://github.com/beagle-dev/beagle-lib.git
+cd beagle-lib
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME -DBUILD_CUDA=OFF ..
+make
+make install
 
 ```
+
+
