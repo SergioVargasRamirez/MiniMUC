@@ -24,7 +24,7 @@ To compile `beagle-lib`:
 
 zypper in cmake
 zypper in java-21-openjdk-devel
-zypper in intel-opencl intel-opencl-devel opencl-cpp-headers ocl-icd-devel clinfo
+zypper in ocl-icd-devel
 
 git clone --depth=1 https://github.com/beagle-dev/beagle-lib.git
 cd beagle-lib
@@ -37,6 +37,8 @@ make install
 ```
 
 With this configuration beagle compiles but the I get a run time error.
+
+installed: vulkan-tools
 
 ## Avoid GDM to send the computer to sleep when no user logs in
 
