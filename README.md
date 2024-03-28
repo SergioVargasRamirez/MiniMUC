@@ -56,6 +56,9 @@ dbus-launch gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive
 exit
 ```
 
+## Installing mini-forge
+
+Download mini-forge and install it...
 
 
 
