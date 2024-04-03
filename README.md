@@ -61,8 +61,30 @@ exit
 Download mini-forge and install it...
 
 
+## Installing intel one-api
+As root:
 
+```sh
+zypper install -t pattern devel_C_C++
+zypper install kernel-devel
 
+zypper addrepo https://yum.repos.intel.com/oneapi oneAPI
+rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 
+zypper install intel-basekit
+
+```
+
+Getting the following warning:
+
+```
+Warning:  the following driver(s) were not found loaded in the kernel:  sep5.
+Warning:  no vtsspp driver was found loaded in the kernel.
+Warning:  no socwatch driver was found loaded in the kernel.
+Warning:  the following driver(s) were not found loaded in the kernel:  socperf3.
+The PAX service is not loaded anymore.
+sep5.service failing...
+
+```
 
 
