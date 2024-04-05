@@ -87,4 +87,24 @@ sep5.service failing...
 
 ```
 
+# Install Rstudio server
 
+```sh
+zypper install apache2
+systemctl start apache2
+systemctl enable apache2
+
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --reload
+
+zypper install rstudio-server
+systemctl start rstudio-server
+systemctl enable rstudio-server
+
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --reload
+
+```
+
+
+# Install jupyter 
