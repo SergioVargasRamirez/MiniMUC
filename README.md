@@ -101,8 +101,10 @@ zypper install rstudio-server
 systemctl start rstudio-server
 systemctl enable rstudio-server
 
-firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --zone=public --add-port=8787/tcp --permanent
 firewall-cmd --reload
+
+zypper install gcc-fortran libcurl-devel xz-devel
 
 ```
 
