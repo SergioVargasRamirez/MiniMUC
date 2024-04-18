@@ -104,8 +104,7 @@ systemctl enable rstudio-server
 firewall-cmd --zone=public --add-port=8787/tcp --permanent
 firewall-cmd --reload
 
-zypper install gcc-fortran libcurl-devel xz-devel
-
+zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel libpng16-devel
 ```
 
 
