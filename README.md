@@ -71,8 +71,7 @@ zypper install kernel-devel
 zypper addrepo https://yum.repos.intel.com/oneapi oneAPI
 rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 
-zypper install intel-basekit
-intel-basekit-2024.0
+zypper install intel-basekit-2024.0
 
 ```
 
@@ -87,6 +86,7 @@ The PAX service is not loaded anymore.
 sep5.service failing...
 
 ```
+This seems to be cause by the compilation of socwatch failing in kernel 6
 
 # Install Rstudio server
 
@@ -114,6 +114,7 @@ zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel li
 zypper install intel-oneapi-pytorch intel-oneapi-mkl intel-oneapi-runtime-mkl
 zypper install ollama
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/oneapi/mkl/2024.0/lib:/opt/intel/oneapi/compiler/2024.1/lib
 
 
 
