@@ -152,6 +152,67 @@ make install
 ```
 
 
+# Apache virtual hosts
+
+```sh
+#
+# VirtualHost template
+# Note: to use the template, rename it to /etc/apache2/vhost.d/yourvhost.conf.
+# Files must have the .conf suffix to be loaded.
+#
+# See https://en.opensuse.org/SDB:Apache_installation for further hints
+# about virtual hosts.
+#
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for requests without a known
+# server name.
+#
+<VirtualHost *:8080>
+
+    ServerName minimuc
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    ProxyPass / http://0.0.0.0:8080/
+    ProxyPassReverse / http://0.0.0.0:8080/
+
+</VirtualHost>
+
+
+#
+# VirtualHost template
+# Note: to use the template, rename it to /etc/apache2/vhost.d/yourvhost.conf.
+# Files must have the .conf suffix to be loaded.
+#
+# See https://en.opensuse.org/SDB:Apache_installation for further hints
+# about virtual hosts.
+#
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for requests without a known
+# server name.
+#
+<VirtualHost *:8050>
+
+    ServerName minimuc
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    ProxyPass / http://0.0.0.0:8050/
+    ProxyPassReverse / http://0.0.0.0:8050/
+
+</VirtualHost>
+```
+Add `ServerName minimuc` to httpd.conf
+Add name miniMUC to /etc/hosts and /etc/hostname
+
+Add `UUID=527495ce-1add-4a6b-98c2-3859c84aba23  /mnt/scratch            ext4   defaults                      0  0` to fstab
+Create group users or data to assing scratch to it.
+
+
+
+
 
 
 # Install ollama + llama3
