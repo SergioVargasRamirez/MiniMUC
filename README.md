@@ -4,7 +4,7 @@ This is just to keep track of the changes I introduce to my mini hpc system at h
 
 ## Installation:
 
-I installed OpenSuse Tumbleweed to have access to the most recent kernel and drivers and be able to use the GPU (Intel ARC 770) for computational purposes.
+I installed OpenSuse Tumbleweed to have access to the most recent kernel and drivers and be able to use the GPU (Intel ARC 770) for computational purposes. After many attempts to get the GPU working with different programs I was pointed to an incompatibility between the kernel version >6.8 and the intel-oneapi packages. I then installed Ubuntu 22LTS to test whether the intel packages worked with the Arc 770 GPU. This test was successful. Therefore, I installed OpenSuse Leap 15.6 RC, which comes with kernel 6.4 with the necessary backport updates to support Arc 770. I installed OpenSuse to follow the suggestion to avoid modifying the host system and get all the necessary GPU packagery running via containers. This actually works very well. I can use an Ubuntu 22LTS container and install the necessary intel-oneapi, etc. packages and use the container to run the GPU computation whenever I need them to do it.  
 
 ## Post-install changes:
 
@@ -13,12 +13,78 @@ The following packages have been added:
 ```sh
 
 zypper in intel-gpu-tools
-zypper in git
-zypper in -t pattern devel_basis
+zypper in git-lfs
+zypper in docker
+zypper in htop
+
+#zypper in -t pattern devel_basis
 
 ```
 
+## Change server name
+
+Add name `miniMUC` to `/etc/hosts` and `/etc/hostname`.
+
+## Mount RAID drive
+
+Add `UUID=527495ce-1add-4a6b-98c2-3859c84aba23  /mnt/scratch            ext4   defaults                      0  0` to `fstab`
+
+Create group `data` to assing `scratch` to it and allow access to the `scratch` folder.
+
+## Testing GPU with docker's IPEX-LLM image
+
+First, download some LLMs. I downloaded:
+
+ - Meta-Llama3-8B-Instruct
+ - Meta-Llama3-70B-Instruct
+ - Mistral-7B-Instruct
+ - chatglm2-6b
+
+The LLMs are stored in the folder `~/LLModels`. To test the GPU via docker:
+
+```sh
+docker pull intelanalytics/ipex-llm-xpu
+docker run -itd --net=host --privileged --device /dev/dri -v ~/LLModels:/llm/llm-models  --memory="32G" --name=ipex --shm-size="16g" intelanalytics/ipex-llm-xpu
+docker exec -it ipex bash
+```
+
+This will start a session inside the container. In the container do the following to test the GPU:
+
+```sh
+cd llm
+python chat.py --model-path llm-models/chatglm2-6b
+
+#opens a chat-like terminal to interact with the llm
+
+```
+
+It is a good idea to have another terminal with `intel_gpu_top` running to check the GPU. I tried llama3-8B as well and llama3-70B but this last model needs to much RAM
+
+## Testing GPU with Podman
+
+An alternative to `docker` available in OpenSuse is `podman`. I would like to use this container manager instead of `docker`. Among other reasons, it runs fully in user space and doesn't use a deamon. Now, I have no idea whether it can run the GPU. The problem is that one cannot install `docker` and `podman` on the same host. In OpenSuse, `zypper` will ask whether to uninstall `docker` before installing `podman` or cancel. In principle, all should work replacing `docker` for `podman`.
+
+```sh
+
+podman pull intelanalytics/ipex-llm-xpu
+#podman run -itd --net=host --privileged --device /dev/dri --volume ~/LLModels:/llm/llm-models  --memory="32G" --name=ipex --shm-size="16g" intelanalytics/ipex-llm-xpu
+#with podman, I don't seem to need the --privileged flag
+#I cannot run the container with the --memory or the --shm-size flags
+
+podman run -itd --net=host --device /dev/dri --volume ~/LLModels:/llm/llm-models --name=ipex intelanalytics/ipex-llm-xpu
+podman exec -it ipex bash
+
+```
+
+The GPU is also used by the LLMs with `podman` so I will keep using this method.
+
+
+
+
+
 ## Avoid GDM to send the computer to sleep when no user logs in
+
+This was necessary with Tumbleweed but is somehow not needed with Leap.
 
 Avoid `gdm` to suspend the computer while logged in via `ssh`. I keep getting a `suspend` message after some time... I log in via `ssh`, which means `gdm` is waiting for a user to log in and send the system to sleep... To fix this (which is really annoying):
 
@@ -61,77 +127,7 @@ zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel li
 
 
 
-## GPU...
-I have had lots of problems with this...
-
-I included the Intel repo and installed the following packages:
-
-As root:
-
-```sh
-zypper install -t pattern devel_C_C++
-zypper install kernel-devel
-
-zypper addrepo https://yum.repos.intel.com/oneapi oneAPI
-rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-
-zypper install intel-basekit-2024.0
-
-```
-
-But keep getting the following warning:
-
-```
-Warning:  the following driver(s) were not found loaded in the kernel:  sep5.
-Warning:  no vtsspp driver was found loaded in the kernel.
-Warning:  no socwatch driver was found loaded in the kernel.
-Warning:  the following driver(s) were not found loaded in the kernel:  socperf3.
-The PAX service is not loaded anymore.
-sep5.service failing...
-
-```
-
-And nothing seems to work with the GPU... The error seems to be caused by the compilation of socwatch failing in kernel 6.
-
-So, I ended up unintalling all the intel packages to try to compile the NEO package myself. For this:
-
-```sh
-mkdir intel
-cd intel
-mkdir src
-cd src
-
-git clone https://github.com/intel/vc-intrinsics.git vc-intrinsics
-git clone -b llvmorg-14.0.5 https://github.com/llvm/llvm-project.git llvm-project
-git clone -b ocl-open-140 https://github.com/intel/opencl-clang.git llvm-project/llvm/projects/opencl-clang
-git clone -b llvm_release_140 https://github.com/KhronosGroup/SPIRV-LLVM-Translator.git llvm-project/llvm/projects/llvm-spirv
-git clone https://github.com/KhronosGroup/SPIRV-Tools.git SPIRV-Tools
-git clone https://github.com/KhronosGroup/SPIRV-Headers.git SPIRV-Headers
-git clone https://github.com/intel/intel-graphics-compiler.git igc
-git clone https://github.com/intel/compute-runtime.git neo
-git clone https://github.com/intel/metrics-library.git
-
-#I had to install the following packages because I kept getting compilation time errors:
-su
-zypper install libva-devel gmmlib-devel libigc-devel libigdfcl-devel libigfxcmrt-devel python311-Mako
-
-mkdir build_neo
-cd build_neo
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/sergio.vargas/Repos/intel -DCMAKE_BUILD_TYPE=Release ../neo/
-make -j 28
-#I needed to run make install as root to allow for the creation of a file in /etc/OpenCL
-su
-make install
-
-mkdir build_igc
-cd build_igc
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/sergio.vargas/Repos/intel -DCMAKE_BUILD_TYPE=Release ../igc/
-make -j 28
-make install
-
-```
-
-
+## Beagle
 
 To compile `beagle-lib`:
 
@@ -204,23 +200,7 @@ make install
 
 </VirtualHost>
 ```
-Add `ServerName minimuc` to httpd.conf
-Add name miniMUC to /etc/hosts and /etc/hostname
-
-Add `UUID=527495ce-1add-4a6b-98c2-3859c84aba23  /mnt/scratch            ext4   defaults                      0  0` to fstab
-Create group users or data to assing scratch to it.
 
 
-
-
-
-
-# Install ollama + llama3
-
-zypper install intel-oneapi-pytorch intel-oneapi-mkl intel-oneapi-runtime-mkl
-zypper install ollama
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/oneapi/mkl/2024.0/lib:/opt/intel/oneapi/compiler/2024.1/lib
-
-
+Add `ServerName minimuc` to httpd.conf (Apache)
 
