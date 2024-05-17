@@ -14,10 +14,12 @@ The following packages have been added:
 
 zypper in intel-gpu-tools
 zypper in git-lfs
-zypper in docker
+zypper in podman podman-docker
 zypper in htop
 
+#software I previously installed but removed
 #zypper in -t pattern devel_basis
+#zypper in docker
 
 ```
 
@@ -78,9 +80,18 @@ podman exec -it ipex bash
 
 The GPU is also used by the LLMs with `podman` so I will keep using this method.
 
+## Creating a GPU container with Podman
+
+The tests above were done with available images. I would like to build my own images and, hopefully, make them minimal. As a test, I configured an image to compile [llama.cpp](https://github.com/ggerganov/llama.cpp) in it and run it in the container with my Arc 770 GPU.
 
 
 
+
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" >This work by <span property="cc:attributionName">Sergio Vargas R.</span> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Creative Commons Attribution 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></a></p>
+
+---
 
 ## Avoid GDM to send the computer to sleep when no user logs in
 
