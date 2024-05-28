@@ -85,6 +85,31 @@ The GPU is also used by the LLMs with `podman` so I will keep using this method.
 The tests above were done with available images. I would like to build my own images and, hopefully, make them minimal. As a test, I configured an image to compile [llama.cpp](https://github.com/ggerganov/llama.cpp) in it and run it in the container with my Arc 770 GPU.
 
 
+## Installing mini-forge
+
+Download mini-forge and install it...
+
+
+# Install Rstudio server
+
+```sh
+zypper install apache2
+systemctl start apache2
+systemctl enable apache2
+
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+firewall-cmd --reload
+
+zypper install rstudio-server
+systemctl start rstudio-server
+systemctl enable rstudio-server
+
+firewall-cmd --zone=public --add-port=8787/tcp --permanent
+firewall-cmd --reload
+
+zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel libpng16-devel
+```
+
 
 
 ---
@@ -111,30 +136,8 @@ dbus-launch gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive
 exit
 ```
 
-## Installing mini-forge
-
-Download mini-forge and install it...
 
 
-# Install Rstudio server
-
-```sh
-zypper install apache2
-systemctl start apache2
-systemctl enable apache2
-
-firewall-cmd --zone=public --add-port=80/tcp --permanent
-firewall-cmd --reload
-
-zypper install rstudio-server
-systemctl start rstudio-server
-systemctl enable rstudio-server
-
-firewall-cmd --zone=public --add-port=8787/tcp --permanent
-firewall-cmd --reload
-
-zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel libpng16-devel
-```
 
 
 
