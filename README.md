@@ -113,7 +113,32 @@ zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel li
 zypper install fontconfig-devel
 ```
 
+# Podman stuff
 
+```sh
+#remove "external" containers
+
+array=($(podman ps -a --external | head -n -1 | awk 'BEGIN{FS=" "} {print $1}'))
+
+for i in ${array[@]};do
+ podman container rm $i
+done
+
+#list and remove images
+podman image list
+podman image rm d0c44b7baab3
+
+#list and remove containers
+podman container list
+podman ps -a 
+
+#build image from dockerfile
+podman build --format docker -f ubuntu_22_gpu_beagle.beast2.dockerfile
+
+#run image in interactive mode: will start a tty 
+podman run -it --net=host --device=/dev/dri --name=beagle.beast2 0bf7f47588cc 
+
+```
 
 ---
 
@@ -146,21 +171,23 @@ exit
 
 ## Beagle
 
-To compile `beagle-lib`:
+To compile `beagle-lib` inside a podman container with the necessary intel packages for Arc 770 GPU interaction. Inside the container:
 
 ```sh
+#the container includes the necessary intel packages, java and other beagle-lib requirements, beagle-lib, and beast2
 
-zypper in cmake
-zypper in java-21-openjdk-devel
-zypper in ocl-icd-devel
-
-git clone --depth=1 https://github.com/beagle-dev/beagle-lib.git
+source /opt/intel/oneapi/setvars.sh
 cd beagle-lib
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME -DBUILD_CUDA=OFF ..
+cmake ..
 make
 make install
+
+#test the install; a GPU should be listed
+cd /beast2/bin
+./beast2 -beagle_info
+
 
 ```
 
