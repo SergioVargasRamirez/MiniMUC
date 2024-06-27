@@ -111,6 +111,10 @@ zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel li
 
 #required for svglite
 zypper install fontconfig-devel
+
+#required by devtools
+zypper install libopenssl-devel harfbuzz-devel fribidi-devel freetype-devel libpng-devel libtiff-devel libjpeg-devel
+
 ```
 
 # Podman stuff
