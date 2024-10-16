@@ -199,6 +199,10 @@ cd /beast2/bin
 # Apache virtual hosts
 
 ```sh
+# to enable virtualhosts the module proxy needs to be active
+# as root run:
+a2enmod proxy
+#
 #
 # VirtualHost template
 # Note: to use the template, rename it to /etc/apache2/vhost.d/yourvhost.conf.
