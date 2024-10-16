@@ -104,7 +104,12 @@ zypper install rstudio-server
 systemctl start rstudio-server
 systemctl enable rstudio-server
 
+#open port 8787 for rstudio-server
 firewall-cmd --zone=public --add-port=8787/tcp --permanent
+firewall-cmd --reload
+
+#open port 8080 for marimo
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
 firewall-cmd --reload
 
 zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel libpng16-devel
