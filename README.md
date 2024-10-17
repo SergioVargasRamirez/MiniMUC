@@ -14,7 +14,7 @@ The following packages have been added:
 
 zypper in intel-gpu-tools
 zypper in git-lfs
-zypper in podman podman-docker
+zypper in podman podman-docker docker-compose
 zypper in htop
 
 #software I previously installed but removed
@@ -112,6 +112,8 @@ firewall-cmd --reload
 firewall-cmd --zone=public --add-port=8080/tcp --permanent
 firewall-cmd --reload
 
+#Add `ServerName minimuc` to httpd.conf (Apache)
+
 zypper install gcc-fortran libcurl-devel xz-devel libbz2-devel libjpeg8-devel libpng16-devel
 
 #required for svglite
@@ -121,6 +123,50 @@ zypper install fontconfig-devel
 zypper install libopenssl-devel harfbuzz-devel fribidi-devel freetype-devel libpng-devel libtiff-devel libjpeg-devel
 
 ```
+
+# Install marimo inside a podman pod
+
+To test marimo, I use a container runing a miniconda3 image with port 8080 exposed and a directory "/notebooks" attached to it to ensure the notebooks are saved.
+
+To be able to reach marimo from a remote, yet in the same network, PC via web browser Apache2 needs to be configured to:
+  1. activate the **proxy** module
+  2. forward port 8080 to the marimo podman pod
+
+```sh
+# to enable virtualhosts the module proxy needs to be active
+# as root run:
+a2enmod proxy
+#
+#
+# VirtualHost template
+# Note: to use the template, rename it to /etc/apache2/vhost.d/yourvhost.conf.
+# Files must have the .conf suffix to be loaded.
+#
+# See https://en.opensuse.org/SDB:Apache_installation for further hints
+# about virtual hosts.
+#
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for requests without a known
+# server name.
+#
+<VirtualHost *:8080>
+
+    ServerName minimuc
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    ProxyPass / http://0.0.0.0:8080/
+    ProxyPassReverse / http://0.0.0.0:8080/
+
+</VirtualHost>
+```
+
+To run the pod I have tested:
+```sh
+podman run -it --rm --net host -p 8080:8080 --volume ~/Repos/marimo/notebooks:/notebooks --replace --name=marimo b2537544abe6
+```
+I still need to check how to run the podman when the computer restarts and how to avoid having to connect with a session token. I have checked that the notebooks are successfully saved to the HD.
 
 # Podman stuff
 
@@ -201,38 +247,8 @@ cd /beast2/bin
 ```
 
 
-# Apache virtual hosts
 
-```sh
-# to enable virtualhosts the module proxy needs to be active
-# as root run:
-a2enmod proxy
-#
-#
-# VirtualHost template
-# Note: to use the template, rename it to /etc/apache2/vhost.d/yourvhost.conf.
-# Files must have the .conf suffix to be loaded.
-#
-# See https://en.opensuse.org/SDB:Apache_installation for further hints
-# about virtual hosts.
-#
-# Almost any Apache directive may go into a VirtualHost container.
-# The first VirtualHost section is used for requests without a known
-# server name.
-#
-<VirtualHost *:8080>
-
-    ServerName minimuc
-
-    ProxyRequests Off
-    ProxyPreserveHost On
-
-    ProxyPass / http://0.0.0.0:8080/
-    ProxyPassReverse / http://0.0.0.0:8080/
-
-</VirtualHost>
-
-
+```
 #
 # VirtualHost template
 # Note: to use the template, rename it to /etc/apache2/vhost.d/yourvhost.conf.
@@ -258,6 +274,4 @@ a2enmod proxy
 </VirtualHost>
 ```
 
-
-Add `ServerName minimuc` to httpd.conf (Apache)
 
