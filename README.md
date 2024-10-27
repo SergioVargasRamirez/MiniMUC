@@ -168,6 +168,56 @@ podman run -it --rm --net host -p 8080:8080 --volume ~/Repos/marimo/notebooks:/n
 ```
 I still need to check how to run the podman when the computer restarts and how to avoid having to connect with a session token. I have checked that the notebooks are successfully saved to the HD.
 
+# Install Overleaf using overleaf's provided container
+
+Install `docker` and enable and launch the service with `systemctl enable docker`, `systemctl start docker`.
+
+Add a new proxy using port 8087 to forward trafic using this port to the overleaf container.
+
+```sh
+# to enable virtualhosts the module proxy needs to be active, if not done already, 
+# as root run:
+# a2enmod proxy
+#
+#
+# VirtualHost template
+# Note: to use the template, rename it to /etc/apache2/vhost.d/yourvhost.conf.
+# Files must have the .conf suffix to be loaded.
+#
+# See https://en.opensuse.org/SDB:Apache_installation for further hints
+# about virtual hosts.
+#
+# Almost any Apache directive may go into a VirtualHost container.
+# The first VirtualHost section is used for requests without a known
+# server name.
+#
+<VirtualHost *:8087>
+
+    ServerName minimuc
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    ProxyPass / http://0.0.0.0:8087/
+    ProxyPassReverse / http://0.0.0.0:8087/
+
+</VirtualHost>
+```
+
+Open the firewall and restart apache2:
+
+```sh
+firewall-cmd --zone=public --add-port=8087/tcp --permanent
+firewall-cmd --reload
+systemctl restart apache2.service
+```
+
+In overleaf's docker configuration change the port to 8087 and the IP address from 127.0.0.0 to 0.0.0.0 or 127.0.1.1 to 0.0.1.1.
+
+Start the container using the provided script `bin/up` and connect from a browser using the address `http://minimuc:8087/launchpad`.
+
+Somehow the latex projects are saved in the container... I have no idea where they are stored. Overleaf uses a mongo db. Probably there...
+
 # Podman stuff
 
 ```sh
