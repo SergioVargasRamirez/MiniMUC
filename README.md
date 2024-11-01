@@ -204,6 +204,7 @@ Add a new proxy using port 8087 to forward trafic using this port to the overlea
 </VirtualHost>
 ```
 
+Do the same but for port 5000. This is the port the docker registry listens to.
 Open the firewall and restart apache2:
 
 ```sh
@@ -212,7 +213,7 @@ firewall-cmd --reload
 systemctl restart apache2.service
 
 #required by mongo db
-firewall-cmd --zone=public --add-port=27017/tcp --permanent
+firewall-cmd --zone=public --add-port=5000/tcp --permanent
 firewall-cmd --reload
 systemctl restart apache2.service
 
@@ -230,6 +231,19 @@ After testing a bit two things I discovered:
   - the latex distro is not complete... but minimal. To have a full install run `docker exec sharelatex tlmgr install scheme-full`, which will install >4000 packages in the container.
   - after install, you need to commit the container running `docker commit sharelatex local/sharelatex-with-texlive-full` to "save" the state with the complete latex install.
   - there are other two containers running... with mongo db and something else. I have not checked what this guys are doing. I still don't know where the `tex` files are saved.
+
+To make the committed, updated image available for use with docker-compose, I had to add it to my local docker registy... 
+
+```sh
+#get the docker registry
+docker run -d -p 5000:5000 --restart=always --name registry registry:latest
+
+#tag the new image to use the local registry. Is important to keep the version matching! It has to be 5.2.1
+docker tag sharelatex-with-texlive2024-full:latest minimuc:5000/sharelatex-with-texlive2024-full:5.2.1
+
+#push the image to the local registry
+docker push minimuc:5000/sharelatex-with-texlive2024-full:5.2.1
+```
 
 # Podman stuff
 
