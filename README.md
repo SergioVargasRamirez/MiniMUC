@@ -210,6 +210,12 @@ Open the firewall and restart apache2:
 firewall-cmd --zone=public --add-port=8087/tcp --permanent
 firewall-cmd --reload
 systemctl restart apache2.service
+
+#required by mongo db
+firewall-cmd --zone=public --add-port=27017/tcp --permanent
+firewall-cmd --reload
+systemctl restart apache2.service
+
 ```
 
 In overleaf's docker configuration change the port to 8087 and the IP address from 127.0.0.0 to 0.0.0.0 or 127.0.1.1 to 0.0.1.1.
