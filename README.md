@@ -218,6 +218,13 @@ Start the container using the provided script `bin/up` and connect from a browse
 
 Somehow the latex projects are saved in the container... I have no idea where they are stored. Overleaf uses a mongo db. Probably there...
 
+After testing a bit two things I discovered:
+
+  - if the container runs in detached mode it will restart with your computer next session. This is probably the default behaviour but I was not 100% sure it will happen.
+  - the latex distro is not complete... but minimal. To have a full install run `docker exec sharelatex tlmgr install scheme-full`, which will install >4000 packages in the container.
+  - after install, you need to commit the container running `docker commit sharelatex local/sharelatex-with-texlive-full` to "save" the state with the complete latex install.
+  - there are other two containers running... with mongo db and something else. I have not checked what this guys are doing. I still don't know where the `tex` files are saved.
+
 # Podman stuff
 
 ```sh
